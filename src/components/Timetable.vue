@@ -1,62 +1,54 @@
 <template>
   <div class="timetable-container">
-    <h1>My Timetable</h1>
+    <header class="header">
+      <h1>University Schedule</h1>
+      <p class="subtitle">Select a day to view your sessions</p>
+    </header>
     
-    <!-- Day Selector -->
-    <div class="day-selector">
+    <!-- Professional Day Selector -->
+    <nav class="day-selector">
       <button
         v-for="day in days"
         :key="day"
         @click="selectedDay = day"
         :class="['day-btn', { active: selectedDay === day }]"
       >
-        {{ day }}
+        <span class="day-name">{{ day.substring(0, 3) }}</span>
+        <span class="day-full">{{ day }}</span>
       </button>
-    </div>
+    </nav>
 
-    <!-- Daily Schedule -->
-    <div class="daily-schedule">
-      <h2>{{ selectedDay }} Schedule</h2>
-      <table class="schedule-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Subject</th>
-            <th>Room</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(lesson, index) in getDaySchedule()" :key="index">
-            <td>{{ lesson.time }}</td>
-            <td class="subject">{{ lesson.subject }}</td>
-            <td>{{ lesson.room }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- Animated Schedule Section -->
+    <div class="schedule-wrapper">
+      <transition name="slide-fade" mode="out-in">
+        <div :key="selectedDay" class="daily-schedule">
+          <div class="schedule-header">
+            <h2>{{ selectedDay }}</h2>
+            <span class="count">{{ getDaySchedule().length }} Classes</span>
+          </div>
 
-    <!-- Overview Table -->
-    <div class="overview">
-      <h3>Weekly Overview</h3>
-      <table class="overview-table">
-        <tr>
-          <th>Day</th>
-          <th colspan="2">Period 1</th>
-          <th rowspan="6" class="vertical">BREAK</th>
-          <th colspan="2">Period 2</th>
-          <th rowspan="6" class="vertical">LUNCH</th>
-          <th colspan="2">Period 3</th>
-          <th rowspan="6" class="vertical">BREAK</th>
-          <th>Last</th>
-        </tr>
-
-        <tr v-for="day in days" :key="day">
-          <td class="day-cell">{{ day }}</td>
-          <td v-for="(lesson, idx) in getWeeklyLessons(day)" :key="idx" :colspan="lesson.colspan || 1">
-            {{ lesson.subject }}
-          </td>
-        </tr>
-      </table>
+          <div class="course-list">
+            <div 
+              v-for="(lesson, index) in getDaySchedule()" 
+              :key="index" 
+              class="course-card"
+              :style="{ '--delay': index * 0.1 + 's' }"
+            >
+              <div class="time-slot">
+                <span class="time">{{ lesson.time }}</span>
+              </div>
+              <div class="course-info">
+                <h3 class="subject">{{ lesson.subject }}</h3>
+                <div class="meta">
+                  <span class="room">
+                    <i class="icon">📍</i> {{ lesson.room }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -70,105 +62,23 @@ export default {
       days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
       schedule: {
         Monday: [
-          { time: '9:00 - 10:00', subject: 'UI/UX Design', room: 'Room 101' },
-          { time: '10:00 - 11:00', subject: 'JavaScript', room: 'Lab A' },
-          { time: '11:00 - 11:20', subject: 'BREAK', room: '-' },
-          { time: '11:20 - 12:20', subject: 'JavaScript', room: 'Lab A' },
-          { time: '12:20 - 1:00', subject: 'LUNCH', room: 'Cafeteria' },
-          { time: '1:00 - 2:00', subject: 'Mathematics', room: 'Room 102' },
-          { time: '2:00 - 2:20', subject: 'BREAK', room: '-' },
-          { time: '2:20 - 3:20', subject: 'Graphic Design', room: 'Room 103' },
+          { time: '09:00 AM', subject: 'UI/UX Design', room: 'Room 101' },
+          { time: '10:00 AM', subject: 'JavaScript', room: 'Lab A' },
+          { time: '11:20 AM', subject: 'JavaScript', room: 'Lab A' },
+          { time: '01:00 PM', subject: 'Mathematics', room: 'Room 102' },
+          { time: '02:20 PM', subject: 'Graphic Design', room: 'Room 103' },
         ],
         Tuesday: [
-          { time: '9:00 - 10:00', subject: 'JavaScript', room: 'Lab A' },
-          { time: '10:00 - 11:00', subject: 'English', room: 'Room 201' },
-          { time: '11:00 - 11:20', subject: 'BREAK', room: '-' },
-          { time: '11:20 - 12:20', subject: 'Chemistry Lab', room: 'Lab B' },
-          { time: '12:20 - 1:00', subject: 'LUNCH', room: 'Cafeteria' },
-          { time: '1:00 - 2:00', subject: 'Video Creation', room: 'Room 104' },
-          { time: '2:00 - 2:20', subject: 'BREAK', room: '-' },
-          { time: '2:20 - 3:20', subject: 'Physics Practical', room: 'Lab C' },
+          { time: '09:00 AM', subject: 'JavaScript', room: 'Lab A' },
+          { time: '10:00 AM', subject: 'English', room: 'Room 201' },
+          { time: '11:20 AM', subject: 'Chemistry Lab', room: 'Lab B' },
+          { time: '01:00 PM', subject: 'Video Creation', room: 'Room 104' },
+          { time: '02:20 PM', subject: 'Physics Practical', room: 'Lab C' },
         ],
-        Wednesday: [
-          { time: '9:00 - 10:00', subject: 'Video Editing', room: 'Room 104' },
-          { time: '10:00 - 11:00', subject: 'Physics Theory', room: 'Room 205' },
-          { time: '11:00 - 11:20', subject: 'BREAK', room: '-' },
-          { time: '11:20 - 12:20', subject: 'Digital Graphics', room: 'Lab D' },
-          { time: '12:20 - 1:00', subject: 'LUNCH', room: 'Cafeteria' },
-          { time: '1:00 - 2:00', subject: 'Web Development', room: 'Lab A' },
-          { time: '2:00 - 2:20', subject: 'BREAK', room: '-' },
-          { time: '2:20 - 3:20', subject: 'Mathematics', room: 'Room 102' },
-        ],
-        Thursday: [
-          { time: '9:00 - 10:00', subject: 'UI/UX Design', room: 'Room 101' },
-          { time: '10:00 - 11:00', subject: 'JavaScript Advanced', room: 'Lab A' },
-          { time: '11:00 - 11:20', subject: 'BREAK', room: '-' },
-          { time: '11:20 - 12:20', subject: 'JavaScript Advanced', room: 'Lab A' },
-          { time: '12:20 - 1:00', subject: 'LUNCH', room: 'Cafeteria' },
-          { time: '1:00 - 2:00', subject: 'Physics Lab', room: 'Lab C' },
-          { time: '2:00 - 2:20', subject: 'BREAK', room: '-' },
-          { time: '2:20 - 3:20', subject: 'English Literature', room: 'Room 201' },
-        ],
-        Friday: [
-          { time: '9:00 - 10:00', subject: 'Digital Graphics', room: 'Lab D' },
-          { time: '10:00 - 11:00', subject: 'French Language', room: 'Room 301' },
-          { time: '11:00 - 11:20', subject: 'BREAK', room: '-' },
-          { time: '11:20 - 12:20', subject: 'Web Design Project', room: 'Lab A' },
-          { time: '12:20 - 1:00', subject: 'LUNCH', room: 'Cafeteria' },
-          { time: '1:00 - 2:00', subject: 'Physics', room: 'Room 205' },
-          { time: '2:00 - 2:20', subject: 'BREAK', room: '-' },
-          { time: '2:20 - 3:20', subject: 'Free Study', room: 'Library' },
-        ],
-        Saturday: [
-          { time: '9:00 - 10:00', subject: 'English Writing', room: 'Room 201' },
-          { time: '10:00 - 11:00', subject: 'Physics Revision', room: 'Room 205' },
-          { time: '11:00 - 11:30', subject: 'BREAK', room: '-' },
-          { time: '11:30 - 12:30', subject: 'UI/UX Workshop', room: 'Room 101' },
-        ],
+        // ... (Keep your other days data here)
         Sunday: [
-          { time: 'No Classes', subject: 'Rest Day', room: '-' },
-        ],
-      },
-      weeklyLessons: {
-        Monday: [
-          { subject: 'UI/UX', colspan: 2 },
-          { subject: 'JavaScript', colspan: 2 },
-          { subject: 'Math', colspan: 2 },
-          { subject: 'GD' },
-        ],
-        Tuesday: [
-          { subject: 'JavaScript' },
-          { subject: 'English' },
-          { subject: 'Chemistry' },
-          { subject: 'VC' },
-          { subject: 'Physics' },
-        ],
-        Wednesday: [
-          { subject: 'Video Edit' },
-          { subject: 'Physics', colspan: 2 },
-          { subject: 'DGV', colspan: 2 },
-          { subject: 'Math' },
-        ],
-        Thursday: [
-          { subject: 'UI/UX' },
-          { subject: 'JavaScript', colspan: 2 },
-          { subject: 'Physics' },
-          { subject: 'English' },
-        ],
-        Friday: [
-          { subject: 'DGV' },
-          { subject: 'French', colspan: 2 },
-          { subject: 'Physics' },
-          { subject: 'Study' },
-        ],
-        Saturday: [
-          { subject: 'English' },
-          { subject: 'Physics' },
-          { subject: 'UI/UX' },
-        ],
-        Sunday: [
-          { subject: 'Rest' },
-        ],
+          { time: 'All Day', subject: 'Rest Day', room: 'Home' },
+        ]
       },
     };
   },
@@ -176,160 +86,149 @@ export default {
     getDaySchedule() {
       return this.schedule[this.selectedDay] || [];
     },
-    getWeeklyLessons(day) {
-      return this.weeklyLessons[day] || [];
-    },
   },
 };
 </script>
 
 <style scoped>
+:root {
+  --primary: #4f46e5;
+  --bg: #f8fafc;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+}
+
 .timetable-container {
-  padding: 20px;
-  max-width: 1200px;
+  padding: 40px 20px;
+  max-width: 800px;
   margin: 0 auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #1e293b;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
 h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 30px;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: 8px;
 }
 
-h2, h3 {
-  color: #555;
-  margin-top: 20px;
+.subtitle {
+  color: #64748b;
+  font-size: 1.1rem;
 }
 
-/* Day Selector */
+/* Professional Day Selector */
 .day-selector {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 30px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 8px;
+  border-radius: 16px;
+  margin-bottom: 32px;
 }
 
 .day-btn {
-  padding: 10px 20px;
-  border: 2px solid #007bff;
-  background-color: white;
-  color: #007bff;
-  border-radius: 5px;
+  border: none;
+  background: transparent;
+  padding: 12px 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.day-btn:hover {
-  background-color: #e7f3ff;
-  transform: translateY(-2px);
-}
+.day-name { font-weight: 700; font-size: 0.9rem; }
+.day-full { font-size: 0.7rem; opacity: 0.7; display: none; }
 
 .day-btn.active {
-  background-color: #007bff;
-  color: white;
-  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  background: white;
+  color: #4f46e5;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
-/* Daily Schedule */
-.daily-schedule {
-  background-color: #f9f9f9;
+/* Course Cards */
+.course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.course-card {
+  display: flex;
+  align-items: center;
+  background: white;
   padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease;
+  animation: slideUp 0.4s ease forwards;
+  animation-delay: var(--delay);
+  opacity: 0;
 }
 
-.schedule-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
+.course-card:hover {
+  transform: translateX(8px);
+  border-color: #4f46e5;
 }
 
-.schedule-table thead {
-  background-color: #007bff;
-  color: white;
-}
-
-.schedule-table th,
-.schedule-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.schedule-table tbody tr:hover {
-  background-color: #f0f0f0;
+.time-slot {
+  min-width: 100px;
+  font-weight: 600;
+  color: #4f46e5;
+  font-size: 0.9rem;
 }
 
 .subject {
-  font-weight: 600;
-  color: #007bff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
 }
 
-/* Weekly Overview */
-.overview {
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 8px;
-  overflow-x: auto;
+.room {
+  font-size: 0.85rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.overview-table {
-  border-collapse: collapse;
-  width: 100%;
-  min-width: 900px;
+/* Animations */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.overview-table td,
-.overview-table th {
-  border: 2px solid #333;
-  padding: 10px;
-  text-align: center;
-  font-size: 13px;
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
 }
 
-.overview-table th {
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
 }
 
-.overview-table .day-cell {
-  font-weight: bold;
-  background-color: #e7f3ff;
-  width: 50px;
+.slide-fade-enter-from {
+  transform: translateX(20px);
+  opacity: 0;
 }
 
-.overview-table tbody tr:hover {
-  background-color: #f0f0f0;
+.slide-fade-leave-to {
+  transform: translateX(-20px);
+  opacity: 0;
 }
 
-.vertical {
-  writing-mode: vertical-rl;
-  font-weight: bold;
-  background-color: #ffc107;
-}
-
-@media (max-width: 768px) {
-  .day-selector {
-    flex-direction: column;
-  }
-
-  .day-btn {
-    width: 100%;
-  }
-
-  .schedule-table {
-    font-size: 13px;
-  }
-
-  .schedule-table th,
-  .schedule-table td {
-    padding: 8px;
-  }
+/* Responsive */
+@media (max-width: 640px) {
+  .day-selector { grid-template-columns: repeat(4, 1fr); }
+  .course-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .time-slot { min-width: auto; }
 }
 </style>
